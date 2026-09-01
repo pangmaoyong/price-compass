@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>定价罗盘 · 独立开发者出海定价与收入测算</title>
-<meta name="description" content="为出海独立开发者打造的订阅定价工具：目标收入反推付费用户数、Stripe/Paddle/Lemon Squeezy 手续费对比、12 个月收入增长测算。">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolygon points='16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76'/%3E%3C/svg%3E">
+<title>副业收入测算器 · 目标收入反推要卖多少单</title>
+<meta name="description" content="输入你的副业目标月收入，立刻算出卖产品需要多少客户、接单需要多少单、流量广告需要多少日活。免费免注册。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='6' width='20' height='12' rx='2'/%3E%3Ccircle cx='12' cy='12' r='2.5'/%3E%3Cpath d='M6 12h.01M18 12h.01'/%3E%3C/svg%3E">
 <style>
   :root {
     --bg: #f5f6f8;
@@ -23,7 +23,6 @@
     --radius: 8px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
   body {
     font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, -apple-system, sans-serif;
     background: var(--bg);
@@ -32,7 +31,7 @@
     line-height: 1.6;
   }
   header.top {
-    background: #ffffff;
+    background: #fff;
     border-bottom: 1px solid var(--line);
     position: sticky; top: 0; z-index: 10;
   }
@@ -42,27 +41,30 @@
   }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; }
   .brand svg { width: 22px; height: 22px; color: var(--accent); }
-  .brand .en { font-weight: 500; color: var(--ink-3); font-size: 13px; letter-spacing: .5px; }
-  .rate-pill {
+  .goal-pill {
     display: flex; align-items: center; gap: 8px;
     font-size: 13.5px; color: var(--ink-2);
     background: var(--bg); border: 1px solid var(--line);
     border-radius: 999px; padding: 6px 14px;
   }
-  .rate-pill input {
-    width: 64px; border: 1px solid var(--line); border-radius: 6px;
-    padding: 3px 8px; font-size: 13.5px; text-align: center; color: var(--ink);
-    background: #fff;
+  .goal-pill input {
+    width: 76px; border: 1px solid var(--line); border-radius: 6px;
+    padding: 3px 8px; font-size: 13.5px; text-align: center; background: #fff; color: var(--ink);
   }
   main { max-width: 1080px; margin: 0 auto; padding: 0 20px 60px; }
-  .hero { padding: 36px 0 8px; }
-  .hero h1 { font-size: 26px; line-height: 1.3; letter-spacing: 0; }
+  .hero { padding: 34px 0 6px; }
+  .hero h1 { font-size: 26px; line-height: 1.3; }
   .hero p { color: var(--ink-2); margin-top: 6px; max-width: 640px; }
+  .tabs { display: flex; gap: 8px; margin: 26px 0 14px; flex-wrap: wrap; }
+  .tabs button {
+    border: 1px solid var(--line); background: #fff; color: var(--ink-2);
+    border-radius: 999px; padding: 8px 18px; font-size: 14px; cursor: pointer; font-weight: 600;
+  }
+  .tabs button.on { background: var(--ink); border-color: var(--ink); color: #fff; }
   .band-label {
     display: flex; align-items: center; gap: 8px;
-    margin: 34px 0 14px; font-weight: 700; font-size: 16px;
+    margin: 26px 0 14px; font-weight: 700; font-size: 16px;
   }
-  .band-label svg { width: 18px; height: 18px; color: var(--accent); }
   .band-label .no {
     width: 22px; height: 22px; border-radius: 6px; background: var(--accent); color: #fff;
     display: inline-flex; align-items: center; justify-content: center;
@@ -72,7 +74,7 @@
     background: var(--card); border: 1px solid var(--line);
     border-radius: var(--radius); padding: 18px 20px;
   }
-  .inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
   .field label { display: block; font-size: 13px; color: var(--ink-2); margin-bottom: 6px; }
   .field input[type="number"] {
     width: 100%; padding: 9px 12px; font-size: 15px;
@@ -80,13 +82,19 @@
   }
   .field input[type="number"]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
   .field .hint { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+  .presets { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .presets button {
+    border: 1px dashed var(--line); background: var(--bg); color: var(--ink-2);
+    border-radius: 6px; padding: 5px 12px; font-size: 12.5px; cursor: pointer;
+  }
   .tiers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
   .tier {
     background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
     padding: 16px 18px; position: relative;
   }
-  .tier .price { font-size: 22px; font-weight: 800; letter-spacing: 0; }
+  .tier .price { font-size: 22px; font-weight: 800; }
   .tier .price small { font-size: 13px; font-weight: 500; color: var(--ink-3); }
+  .tier .tag { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
   .tier .verdict {
     position: absolute; top: 14px; right: 14px;
     font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 10px;
@@ -98,36 +106,24 @@
   .tier dl div { display: flex; justify-content: space-between; font-size: 13.5px; }
   .tier dt { color: var(--ink-2); }
   .tier dd { font-weight: 600; font-variant-numeric: tabular-nums; }
-  .plat-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-  .plat-bar button {
-    border: 1px solid var(--line); background: #fff; color: var(--ink-2);
-    border-radius: 999px; padding: 6px 16px; font-size: 13.5px; cursor: pointer;
+  .results { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 16px; }
+  .stat {
+    background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 12px 14px;
   }
-  .plat-bar button.on { background: var(--ink); border-color: var(--ink); color: #fff; }
-  .table-scroll { overflow-x: auto; }
-  table.compare { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  table.compare th, table.compare td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); }
-  table.compare th { color: var(--ink-2); font-weight: 600; font-size: 12.5px; }
-  table.compare td.num { text-align: right; font-variant-numeric: tabular-nums; }
-  table.compare tr:last-child td { border-bottom: none; }
+  .stat .k { font-size: 12.5px; color: var(--ink-2); }
+  .stat .v { font-size: 20px; font-weight: 800; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .stat .v small { font-size: 12.5px; font-weight: 500; color: var(--ink-3); }
+  .verdict-line {
+    margin-top: 14px; border-radius: var(--radius); padding: 11px 14px;
+    font-size: 14px; font-weight: 600;
+  }
+  .verdict-line.good { background: var(--accent-soft); color: var(--accent); }
+  .verdict-line.mid { background: var(--amber-soft); color: var(--amber); }
+  .verdict-line.bad { background: var(--red-soft); color: var(--red); }
   .fine { font-size: 12px; color: var(--ink-3); margin-top: 8px; }
-  .proj { display: grid; grid-template-columns: 300px 1fr; gap: 18px; align-items: start; }
-  .sliders { display: grid; gap: 14px; }
-  .sl { display: block; }
-  .sl .row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-  .sl label { font-size: 13.5px; color: var(--ink-2); }
-  .sl output { font-weight: 700; font-variant-numeric: tabular-nums; }
-  .sl input[type="range"] { width: 100%; accent-color: var(--accent); }
-  .callout {
-    margin-top: 12px; border-radius: var(--radius); padding: 12px 14px;
-    font-size: 14px; background: var(--accent-soft); color: var(--accent); font-weight: 600;
-  }
-  .callout.warn { background: var(--amber-soft); color: var(--amber); }
-  .chart-wrap { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
-  .chart-wrap svg { width: 100%; height: auto; display: block; }
-  .refs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .ref h3 { font-size: 14.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-  .ref h3 svg { width: 16px; height: 16px; color: var(--accent); }
+  .refs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  .ref h3 { font-size: 14.5px; margin-bottom: 10px; }
   .ref ul { list-style: none; display: grid; gap: 8px; }
   .ref li { font-size: 13.5px; color: var(--ink-2); padding-left: 18px; position: relative; }
   .ref li::before { content: ""; position: absolute; left: 2px; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
@@ -137,14 +133,14 @@
     padding: 22px 20px 34px; text-align: center;
     font-size: 12.5px; color: var(--ink-3);
   }
+  .hidden { display: none; }
   @media (max-width: 860px) {
-    .inputs, .tiers { grid-template-columns: repeat(2, 1fr); }
-    .proj { grid-template-columns: 1fr; }
+    .inputs, .tiers, .results { grid-template-columns: repeat(2, 1fr); }
     .refs { grid-template-columns: 1fr; }
     .hero h1 { font-size: 22px; }
   }
   @media (max-width: 480px) {
-    .inputs, .tiers { grid-template-columns: 1fr; }
+    .inputs, .tiers, .results { grid-template-columns: 1fr; }
     main { padding: 0 14px 40px; }
   }
 </style>
@@ -153,307 +149,287 @@
 <header class="top">
   <div class="top-inner">
     <div class="brand">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-      定价罗盘 <span class="en">PriceCompass</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>
+      副业收入测算器
     </div>
-    <div class="rate-pill">1 USD =
-      <input id="rate" type="number" step="0.01" min="0.1" value="6.72"> CNY
+    <div class="goal-pill">目标月收入 ¥
+      <input id="goal" type="number" min="0" step="500" value="3000">
     </div>
   </div>
 </header>
 
 <main>
   <div class="hero">
-    <h1>你的订阅定价，能撑起目标收入吗？</h1>
-    <p>输入目标月收入和汇率，立刻看到各价位需要多少付费用户、多少访问量，以及 12 个月后你能走到哪。</p>
+    <h1>想搞副业，先算清楚要卖多少</h1>
+    <p>不管你是想卖课程、接单还是做小程序流量主，把目标收入拆成具体的数字，才知道这件事靠不靠谱。</p>
   </div>
 
-  <div class="band-label"><span class="no">1</span> 目标与成本</div>
-  <div class="card inputs">
-    <div class="field">
-      <label for="goal">目标月净收入（人民币）</label>
-      <input id="goal" type="number" min="0" step="1000" value="20000">
-      <div class="hint">扣除成本后想赚到的钱</div>
-    </div>
-    <div class="field">
-      <label for="costs">月固定成本（美元）</label>
-      <input id="costs" type="number" min="0" step="1" value="20">
-      <div class="hint">服务器、域名、工具订阅</div>
-    </div>
-    <div class="field">
-      <label for="conv">访问转付费率</label>
-      <input id="conv" type="number" min="0.1" max="20" step="0.1" value="2.5">
-      <div class="hint">独立工具常见 1%–5%</div>
-    </div>
-    <div class="field">
-      <label for="platform">收款平台</label>
-      <select id="platform" class="field-input" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);font-size:15px;">
-        <option value="stripe">Stripe</option>
-        <option value="paddle">Paddle</option>
-        <option value="lemon">Lemon Squeezy</option>
-      </select>
-      <div class="hint">费率可在下方对比表修改预期</div>
-    </div>
+  <div class="tabs">
+    <button id="tabA" class="on" onclick="switchTab('A')">卖产品 / 会员</button>
+    <button id="tabB" onclick="switchTab('B')">接单 / 私活</button>
+    <button id="tabC" onclick="switchTab('C')">流量广告</button>
   </div>
 
-  <div class="band-label"><span class="no">2</span> 四个价位，需要多少人买单</div>
-  <div class="tiers" id="tiers"></div>
-
-  <div class="band-label"><span class="no">3</span> 收款平台费用对比</div>
-  <div class="card">
-    <div class="table-scroll">
-    <table class="compare">
-      <thead>
-        <tr><th>平台</th><th>费率</th><th class="num">$9/单 净收入</th><th class="num">$29/单 净收入</th><th class="num">$49/单 净收入</th><th>特点</th></tr>
-      </thead>
-      <tbody id="compareBody"></tbody>
-    </table>
+  <section id="modeA">
+    <div class="band-label"><span class="no">A</span> 四个定价档，各需要多少客户</div>
+    <div class="card">
+      <div class="inputs" style="grid-template-columns: repeat(2, 1fr); max-width: 480px;">
+        <div class="field">
+          <label for="conv">访客转购买率</label>
+          <input id="conv" type="number" min="0.1" max="50" step="0.1" value="2.5">
+          <div class="hint">普通产品常见 1%–5%</div>
+        </div>
+        <div class="field">
+          <label for="payFee">收款手续费</label>
+          <input id="payFee" type="number" min="0" max="10" step="0.1" value="0.6">
+          <div class="hint">微信支付 / 支付宝约 0.6%</div>
+        </div>
+      </div>
     </div>
-    <div class="fine">费率为公开标准价，实际以各平台官网为准；Paddle 与 Lemon Squeezy 为 MoR 模式，代缴海外销售税。</div>
-  </div>
+    <div class="tiers" id="tiersA" style="margin-top: 14px;"></div>
+  </section>
 
-  <div class="band-label"><span class="no">4</span> 12 个月增长测算</div>
-  <div class="card proj">
-    <div class="sliders">
-      <div class="sl">
-        <div class="row"><label for="initial">当前付费用户</label><output id="initialOut"></output></div>
-        <input id="initial" type="range" min="0" max="500" step="5" value="10">
+  <section id="modeB" class="hidden">
+    <div class="band-label"><span class="no">B</span> 接单：算算你的时薪</div>
+    <div class="card">
+      <div class="inputs">
+        <div class="field">
+          <label for="jobPrice">每单价格（元）</label>
+          <input id="jobPrice" type="number" min="1" step="10" value="200">
+          <div class="hint">帮人做个表格、写个脚本、改个网站</div>
+        </div>
+        <div class="field">
+          <label for="jobHours">每单耗时（小时）</label>
+          <input id="jobHours" type="number" min="0.5" step="0.5" value="4">
+          <div class="hint">含沟通和返工，往多了估</div>
+        </div>
+        <div class="field">
+          <label for="jobWeekHours">每周能投入（小时）</label>
+          <input id="jobWeekHours" type="number" min="1" step="1" value="10">
+          <div class="hint">工作日晚间 + 周末</div>
+        </div>
       </div>
-      <div class="sl">
-        <div class="row"><label for="newUsers">每月新增付费用户</label><output id="newUsersOut"></output></div>
-        <input id="newUsers" type="range" min="0" max="300" step="5" value="30">
+      <div class="presets">
+        <button onclick="presetJob(50, 2)">闲鱼小单 ¥50 / 2h</button>
+        <button onclick="presetJob(200, 4)">技能变现 ¥200 / 4h</button>
+        <button onclick="presetJob(500, 10)">定制开发 ¥500 / 10h</button>
+        <button onclick="presetJob(2000, 40)">企业项目 ¥2000 / 40h</button>
       </div>
-      <div class="sl">
-        <div class="row"><label for="churn">月流失率</label><output id="churnOut"></output></div>
-        <input id="churn" type="range" min="0" max="20" step="0.5" value="5">
+      <div class="results">
+        <div class="stat"><div class="k">月需要单量</div><div class="v" id="bOrders">-</div></div>
+        <div class="stat"><div class="k">每周需要单量</div><div class="v" id="bOrdersWeek">-</div></div>
+        <div class="stat"><div class="k">每周需要耗时</div><div class="v" id="bHours">-</div></div>
+        <div class="stat"><div class="k">折算时薪</div><div class="v" id="bRate">-</div></div>
       </div>
-      <div class="sl">
-        <div class="row"><label for="pricePick">按哪个价位测算</label><output id="pricePickOut"></output></div>
-        <input id="pricePick" type="range" min="0" max="3" step="1" value="2">
-      </div>
-      <div class="callout" id="projCallout"></div>
+      <div class="verdict-line good" id="bVerdict"></div>
+      <div class="fine">接单收入按到账价计算，平台抽成以实际平台为准。</div>
     </div>
-    <div class="chart-wrap">
-      <svg id="chart" viewBox="0 0 760 300" role="img" aria-label="12个月月收入预测折线图"></svg>
-    </div>
-  </div>
+  </section>
 
-  <div class="band-label"><span class="no">5</span> 定价参考</div>
+  <section id="modeC" class="hidden">
+    <div class="band-label"><span class="no">C</span> 流量广告：日活换收入</div>
+    <div class="card">
+      <div class="inputs">
+        <div class="field">
+          <label for="ecpm">广告 eCPM（元 / 千次展示）</label>
+          <input id="ecpm" type="number" min="0.1" step="1" value="20">
+          <div class="hint">Banner 约 3–15，激励视频 30–80</div>
+        </div>
+        <div class="field">
+          <label for="adPerUser">人均每天看广告（次）</label>
+          <input id="adPerUser" type="number" min="0.1" step="0.5" value="3">
+          <div class="hint">工具类产品通常 1–5 次</div>
+        </div>
+        <div class="field">
+          <label for="dau">已有日活（选填）</label>
+          <input id="dau" type="number" min="0" step="100" value="0">
+          <div class="hint">填了就能预估现在的月收入</div>
+        </div>
+      </div>
+      <div class="results">
+        <div class="stat"><div class="k">达到目标需要日活</div><div class="v" id="cDau">-</div></div>
+        <div class="stat"><div class="k">相当于注册用户</div><div class="v" id="cUsers">-</div><div class="k">按 30% 次留估算</div></div>
+        <div class="stat"><div class="k">你的日活预估月收入</div><div class="v" id="cIncome">-</div></div>
+        <div class="stat"><div class="k">距离目标还差</div><div class="v" id="cGap">-</div></div>
+      </div>
+      <div class="verdict-line good" id="cVerdict"></div>
+      <div class="fine">eCPM 随类目、季节波动较大，本页为估算模型；流量主开通有粉丝门槛。</div>
+    </div>
+  </section>
+
+  <div class="band-label"><span class="no">参考</span> 国内副业变现速查</div>
   <div class="refs">
     <div class="card ref">
-      <h3>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        常见价位档传递的信号
-      </h3>
+      <h3>按启动难度从低到高</h3>
       <ul>
-        <li><b>$5–9</b>：工具型产品，冲动消费区间，决策快、门槛低</li>
-        <li><b>$19–29</b>：专业个人版主流价位，独立开发者最常落点</li>
-        <li><b>$49–99</b>：面向团队与商业用途，卖的是省时间与确定性</li>
-        <li><b>免费</b>：只是获客手段，不是商业模式</li>
+        <li><b>接单变现</b>：闲鱼 / 淘宝挂服务，会 Excel、剪视频、写代码就能开始</li>
+        <li><b>虚拟产品</b>：模板、教程、素材包，做一次卖无数次</li>
+        <li><b>付费社群 / 课程</b>：¥199–365 / 年，需要先有内容和信任</li>
+        <li><b>小程序 / 公众号</b>：流量主广告，睡后收入但吃日活</li>
       </ul>
     </div>
     <div class="card ref">
-      <h3>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-        定价前检查清单
-      </h3>
+      <h3>定价心理学</h3>
       <ul>
-        <li>找 3 个同类产品，看它们<b>敢收多少钱</b></li>
-        <li>第一版就收费，免费验证的是喜欢，付费验证的才是需求</li>
-        <li>定价页放年付（约 8 折），提高客单与留存</li>
-        <li>把汇率波动与平台手续费<b>写进成本模型</b>，别事后惊讶</li>
+        <li><b>¥9.9</b>：冲动消费区间，用来破冰和筛选用户</li>
+        <li><b>¥29.9–99</b>：工具和课程的主流价位</li>
+        <li><b>¥365</b>：年费社群的经典定价，"每天一块钱"</li>
+        <li><b>免费</b>：只是获客手段，不是商业模式</li>
       </ul>
     </div>
   </div>
 </main>
 
-<footer>定价罗盘 · 一个用 AI 做出来的出海小工具 · 数据仅用于测算，不构成财务建议</footer>
+<footer>副业收入测算器 · 一个用 AI 做出来的小工具 · 数据仅用于测算，不构成收益承诺</footer>
 
 <script>
 (function () {
   "use strict";
-
-  var PLATFORMS = {
-    stripe: { name: "Stripe", pct: 0.029, fixed: 0.30, note: "需自行处理海外税务" },
-    paddle: { name: "Paddle", pct: 0.05, fixed: 0.50, note: "MoR，代缴销售税" },
-    lemon: { name: "Lemon Squeezy", pct: 0.05, fixed: 0.50, note: "MoR，代缴销售税" }
-  };
-  var TIERS = [5, 9, 29, 49];
-
   var $ = function (id) { return document.getElementById(id); };
-  var state = {};
+  var TIERS = [
+    { price: 9.9, tag: "冲动消费区间" },
+    { price: 29.9, tag: "工具主流价位" },
+    { price: 99, tag: "专业版价位" },
+    { price: 365, tag: "年费社群经典价" }
+  ];
 
-  function readInputs() {
-    state.rate = Math.max(parseFloat($("rate").value) || 6.72, 0.1);
-    state.goalCNY = Math.max(parseFloat($("goal").value) || 0, 0);
-    state.costsUSD = Math.max(parseFloat($("costs").value) || 0, 0);
-    state.conv = Math.min(Math.max(parseFloat($("conv").value) || 2.5, 0.1), 20) / 100;
-    state.platform = $("platform").value;
-    state.initial = parseInt($("initial").value, 10);
-    state.newUsers = parseInt($("newUsers").value, 10);
-    state.churn = parseFloat($("churn").value) / 100;
-    state.priceIdx = parseInt($("pricePick").value, 10);
+  function num(id, fallback, min, max) {
+    var v = parseFloat($(id).value);
+    if (isNaN(v)) v = fallback;
+    if (min !== undefined) v = Math.max(v, min);
+    if (max !== undefined) v = Math.min(v, max);
+    return v;
   }
-
+  function fmt(n) { return Math.round(n).toLocaleString("zh-CN"); }
   function save() {
     var data = {};
-    ["rate", "goal", "costs", "conv", "platform", "initial", "newUsers", "churn", "pricePick"].forEach(function (k) {
+    ["goal", "conv", "payFee", "jobPrice", "jobHours", "jobWeekHours", "ecpm", "adPerUser", "dau"].forEach(function (k) {
       data[k] = $(k).value;
     });
-    try { localStorage.setItem("priceCompass", JSON.stringify(data)); } catch (e) {}
+    try { localStorage.setItem("incomeCalc", JSON.stringify(data)); } catch (e) {}
   }
-
   function load() {
     try {
-      var data = JSON.parse(localStorage.getItem("priceCompass"));
-      if (data) {
-        Object.keys(data).forEach(function (k) {
-          if ($(k)) $(k).value = data[k];
-        });
-      }
+      var data = JSON.parse(localStorage.getItem("incomeCalc"));
+      if (data) Object.keys(data).forEach(function (k) { if ($(k)) $(k).value = data[k]; });
     } catch (e) {}
   }
 
-  function fmt(n) { return Math.round(n).toLocaleString("zh-CN"); }
+  window.switchTab = function (m) {
+    ["A", "B", "C"].forEach(function (x) {
+      $("mode" + x).classList.toggle("hidden", x !== m);
+      $("tab" + x).classList.toggle("on", x === m);
+    });
+    try { localStorage.setItem("incomeCalcTab", m); } catch (e) {}
+  };
 
-  function netOf(price, platKey) {
-    var p = PLATFORMS[platKey];
-    return Math.max(price - price * p.pct - p.fixed, 0);
-  }
-
-  function verdict(users) {
-    if (users <= 50) return { text: "容易", cls: "v-easy" };
-    if (users <= 300) return { text: "可行", cls: "v-ok" };
+  function verdict(users, easy, ok) {
+    if (users <= easy) return { text: "容易", cls: "v-easy" };
+    if (users <= ok) return { text: "可行", cls: "v-ok" };
     return { text: "有挑战", cls: "v-hard" };
   }
 
-  function renderTiers() {
-    var targetUSD = state.goalCNY / state.rate + state.costsUSD;
+  function renderA() {
+    var goal = num("goal", 3000, 0);
+    var conv = num("conv", 2.5, 0.1, 50) / 100;
+    var fee = num("payFee", 0.6, 0, 10) / 100;
     var html = "";
-    TIERS.forEach(function (price) {
-      var net = netOf(price, state.platform);
-      var users = Math.ceil(targetUSD / net);
-      var visitors = Math.ceil(users / state.conv);
-      var v = verdict(users);
+    TIERS.forEach(function (t) {
+      var net = t.price * (1 - fee);
+      var sales = Math.ceil(goal / net);
+      var visitors = Math.ceil(sales / conv);
+      var v = verdict(sales, 30, 150);
       html += '<div class="tier">' +
         '<span class="verdict ' + v.cls + '">' + v.text + "</span>" +
-        '<div class="price">$' + price + ' <small>/ 月</small></div>' +
+        '<div class="price">¥' + t.price + ' <small>/ 份</small></div>' +
+        '<div class="tag">' + t.tag + "</div>" +
         "<dl>" +
-        '<div><dt>单用户净收入</dt><dd>$' + net.toFixed(2) + "</dd></div>" +
-        '<div><dt>需要付费用户</dt><dd>' + fmt(users) + " 人</dd></div>" +
-        '<div><dt>需要月访问量</dt><dd>约 ' + fmt(visitors) + "</dd></div>" +
+        '<div><dt>到手工净收入</dt><dd>¥' + net.toFixed(2) + "</dd></div>" +
+        '<div><dt>每月需要卖出</dt><dd>' + fmt(sales) + " 份</dd></div>" +
+        '<div><dt>需要访客</dt><dd>约 ' + fmt(visitors) + "</dd></div>" +
         "</dl></div>";
     });
-    $("tiers").innerHTML = html;
+    $("tiersA").innerHTML = html;
   }
 
-  function renderCompare() {
-    var html = "";
-    Object.keys(PLATFORMS).forEach(function (key) {
-      var p = PLATFORMS[key];
-      html += "<tr><td><b>" + p.name + "</b></td>" +
-        "<td>" + (p.pct * 100).toFixed(1) + "% + $" + p.fixed.toFixed(2) + "</td>" +
-        "<td class=\"num\">$" + netOf(9, key).toFixed(2) + "</td>" +
-        "<td class=\"num\">$" + netOf(29, key).toFixed(2) + "</td>" +
-        "<td class=\"num\">$" + netOf(49, key).toFixed(2) + "</td>" +
-        "<td>" + p.note + "</td></tr>";
-    });
-    $("compareBody").innerHTML = html;
-  }
+  window.presetJob = function (price, hours) {
+    $("jobPrice").value = price;
+    $("jobHours").value = hours;
+    renderB();
+    save();
+  };
 
-  function project(price) {
-    var net = netOf(price, state.platform);
-    var series = [];
-    var mrr = state.initial * net;
-    for (var m = 0; m <= 12; m++) {
-      if (m > 0) mrr = mrr * (1 - state.churn) + state.newUsers * net;
-      series.push(mrr);
-    }
-    return series;
-  }
+  function renderB() {
+    var goal = num("goal", 3000, 0);
+    var price = num("jobPrice", 200, 1);
+    var hours = num("jobHours", 4, 0.5);
+    var weekHours = num("jobWeekHours", 10, 1);
+    var orders = Math.ceil(goal / price);
+    var rate = price / hours;
+    var weekOrdersNeeded = orders / 4.3;
+    var hoursNeeded = orders * hours / 4.3;
+    var capacity = weekHours / hours * 4.3;
 
-  function monthsToGoal(price) {
-    var net = netOf(price, state.platform);
-    var goalMRR = state.goalCNY / state.rate + state.costsUSD;
-    var mrr = state.initial * net;
-    for (var m = 1; m <= 120; m++) {
-      mrr = mrr * (1 - state.churn) + state.newUsers * net;
-      if (mrr >= goalMRR) return m;
-    }
-    return -1;
-  }
+    $("bOrders").textContent = fmt(orders) + " 单";
+    $("bOrdersWeek").textContent = weekOrdersNeeded.toFixed(1) + " 单";
+    $("bHours").innerHTML = fmt(hoursNeeded) + " <small>/ 周</small>";
+    $("bRate").innerHTML = "¥" + rate.toFixed(0) + " <small>/ 小时</small>";
 
-  function renderChart(series, goalMRR) {
-    var svg = $("chart");
-    var W = 760, H = 300, L = 52, R = 16, T = 18, B = 30;
-    var iw = W - L - R, ih = H - T - B;
-    var maxY = Math.max(goalMRR, series[series.length - 1]) * 1.15 + 1;
-    var x = function (m) { return L + (m / 12) * iw; };
-    var y = function (v) { return T + ih - (v / maxY) * ih; };
-    var parts = [];
-
-    for (var g = 0; g <= 3; g++) {
-      var gy = T + (ih * g) / 3;
-      var val = maxY * (1 - g / 3);
-      parts.push('<line x1="' + L + '" y1="' + gy + '" x2="' + (W - R) + '" y2="' + gy + '" stroke="#e4e8ee" stroke-width="1"/>');
-      parts.push('<text x="' + (L - 8) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="13" fill="#8a93a0">' + fmt(val / 1000) + "k</text>");
-    }
-    for (var m = 0; m <= 12; m += 3) {
-      parts.push('<text x="' + x(m) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="13" fill="#8a93a0">' + m + "月</text>");
-    }
-    var goalY = y(goalMRR);
-    parts.push('<line x1="' + L + '" y1="' + goalY + '" x2="' + (W - R) + '" y2="' + goalY + '" stroke="#b45309" stroke-width="1.5" stroke-dasharray="6 5"/>');
-    parts.push('<text x="' + (W - R - 4) + '" y="' + (goalY - 6) + '" text-anchor="end" font-size="13" font-weight="600" fill="#b45309">目标 ¥' + fmt(goalMRR * state.rate) + "/月</text>");
-
-    var pts = series.map(function (v, i) { return x(i) + "," + y(v); }).join(" ");
-    var area = "M" + x(0) + "," + (T + ih) + " L" + pts.replace(/ /g, " L") + " L" + x(12) + "," + (T + ih) + " Z";
-    parts.push('<path d="' + area + '" fill="rgba(15,118,110,0.10)"/>');
-    parts.push('<polyline points="' + pts + '" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>');
-    var lastX = x(12), lastY = y(series[12]);
-    parts.push('<circle cx="' + lastX + '" cy="' + lastY + '" r="4" fill="#0f766e"/>');
-    parts.push('<text x="' + (lastX - 6) + '" y="' + (lastY - 10) + '" text-anchor="end" font-size="13" font-weight="700" fill="#1b1f24">¥' + fmt(series[12] * state.rate) + "/月</text>");
-    svg.innerHTML = parts.join("");
-  }
-
-  function renderProjection() {
-    var price = TIERS[state.priceIdx];
-    $("pricePickOut").textContent = "$" + price + "/月";
-    $("initialOut").textContent = state.initial + " 人";
-    $("newUsersOut").textContent = state.newUsers + " 人/月";
-    $("churnOut").textContent = (state.churn * 100).toFixed(1) + "%";
-
-    var series = project(price);
-    var goalMRR = state.goalCNY / state.rate + state.costsUSD;
-    renderChart(series, goalMRR);
-
-    var callout = $("projCallout");
-    var months = monthsToGoal(price);
-    if (months > 0 && months <= 12) {
-      callout.className = "callout";
-      callout.textContent = "按当前速度，预计第 " + months + " 个月达到目标净收入。";
-    } else if (months > 0) {
-      callout.className = "callout warn";
-      callout.textContent = "第 " + months + " 个月才能达标——考虑提高价位或加大获客。";
+    var line = $("bVerdict");
+    if (hoursNeeded > weekHours) {
+      line.className = "verdict-line bad";
+      line.textContent = "按你每周 " + weekHours + " 小时的投入，最多月接 " + fmt(capacity) + " 单，达不到目标——提单价或加时间。";
+    } else if (rate >= 80) {
+      line.className = "verdict-line good";
+      line.textContent = "时薪 ¥" + rate.toFixed(0) + "，已经高于多数打工时薪，这个单价值得加大投入。";
+    } else if (rate >= 30) {
+      line.className = "verdict-line mid";
+      line.textContent = "时薪 ¥" + rate.toFixed(0) + " 尚可，建议积累案例后逐步提价到 ¥80+/小时。";
     } else {
-      callout.className = "callout warn";
-      callout.textContent = "照这个速度 10 年都到不了目标，定价或获客必须调整。";
+      line.className = "verdict-line bad";
+      line.textContent = "时薪只有 ¥" + rate.toFixed(0) + "，低于很多兼职——优先提高单价，而不是堆时间。";
     }
+  }
+
+  function renderC() {
+    var goal = num("goal", 3000, 0);
+    var ecpm = num("ecpm", 20, 0.1);
+    var perUser = num("adPerUser", 3, 0.1);
+    var dau = num("dau", 0, 0);
+    var dailyRevenuePerDau = ecpm / 1000 * perUser;
+    var needDau = dailyRevenuePerDau > 0 ? Math.ceil(goal / 30 / dailyRevenuePerDau) : 0;
+    var income = dau * dailyRevenuePerDau * 30;
+
+    $("cDau").textContent = fmt(needDau) + " 人";
+    $("cUsers").textContent = fmt(needDau / 0.3) + " 人";
+    $("cIncome").textContent = dau > 0 ? "¥" + fmt(income) : "-";
+    $("cGap").textContent = dau > 0 ? "¥" + fmt(Math.max(goal - income, 0)) : "-";
+
+    var v = verdict(needDau, 1000, 10000);
+    var line = $("cVerdict");
+    line.className = "verdict-line " + (v.cls === "v-easy" ? "good" : v.cls === "v-ok" ? "mid" : "bad");
+    line.textContent = "需要约 " + fmt(needDau) + " 日活才能达标——" +
+      (v.cls === "v-easy" ? "小工具认真做几个月有机会。" :
+       v.cls === "v-ok" ? "需要认真做增长和留存，不是发发朋友圈就有。" :
+       "这是产品公司级别的量，靠它搞副业要先掂量。");
   }
 
   function renderAll() {
-    readInputs();
-    renderTiers();
-    renderCompare();
-    renderProjection();
+    renderA();
+    renderB();
+    renderC();
     save();
   }
 
-  ["rate", "goal", "costs", "conv", "platform", "initial", "newUsers", "churn", "pricePick"].forEach(function (id) {
+  ["goal", "conv", "payFee", "jobPrice", "jobHours", "jobWeekHours", "ecpm", "adPerUser", "dau"].forEach(function (id) {
     $(id).addEventListener("input", renderAll);
   });
 
   load();
   renderAll();
+  var tab = null;
+  try { tab = localStorage.getItem("incomeCalcTab"); } catch (e) {}
+  if (tab && $("mode" + tab)) switchTab(tab);
 })();
 </script>
 </body>
