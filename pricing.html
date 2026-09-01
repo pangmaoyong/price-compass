@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>定价罗盘 · 独立开发者出海定价与收入测算</title>
+<meta name="description" content="为出海独立开发者打造的订阅定价工具：目标收入反推付费用户数、Stripe/Paddle/Lemon Squeezy 手续费对比、12 个月收入增长测算。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolygon points='16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --ink: #1b1f24;
+    --ink-2: #5b6470;
+    --ink-3: #8a93a0;
+    --line: #e4e8ee;
+    --accent: #0f766e;
+    --accent-soft: #e6f4f2;
+    --amber: #b45309;
+    --amber-soft: #fef3e2;
+    --red: #b91c1c;
+    --red-soft: #fdeaea;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  header.top {
+    background: #ffffff;
+    border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .top-inner {
+    max-width: 1080px; margin: 0 auto; padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; }
+  .brand svg { width: 22px; height: 22px; color: var(--accent); }
+  .brand .en { font-weight: 500; color: var(--ink-3); font-size: 13px; letter-spacing: .5px; }
+  .rate-pill {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13.5px; color: var(--ink-2);
+    background: var(--bg); border: 1px solid var(--line);
+    border-radius: 999px; padding: 6px 14px;
+  }
+  .rate-pill input {
+    width: 64px; border: 1px solid var(--line); border-radius: 6px;
+    padding: 3px 8px; font-size: 13.5px; text-align: center; color: var(--ink);
+    background: #fff;
+  }
+  main { max-width: 1080px; margin: 0 auto; padding: 0 20px 60px; }
+  .hero { padding: 36px 0 8px; }
+  .hero h1 { font-size: 26px; line-height: 1.3; letter-spacing: 0; }
+  .hero p { color: var(--ink-2); margin-top: 6px; max-width: 640px; }
+  .band-label {
+    display: flex; align-items: center; gap: 8px;
+    margin: 34px 0 14px; font-weight: 700; font-size: 16px;
+  }
+  .band-label svg { width: 18px; height: 18px; color: var(--accent); }
+  .band-label .no {
+    width: 22px; height: 22px; border-radius: 6px; background: var(--accent); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12.5px; font-weight: 700;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px 20px;
+  }
+  .inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .field label { display: block; font-size: 13px; color: var(--ink-2); margin-bottom: 6px; }
+  .field input[type="number"] {
+    width: 100%; padding: 9px 12px; font-size: 15px;
+    border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--ink);
+  }
+  .field input[type="number"]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .field .hint { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+  .tiers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .tier {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 18px; position: relative;
+  }
+  .tier .price { font-size: 22px; font-weight: 800; letter-spacing: 0; }
+  .tier .price small { font-size: 13px; font-weight: 500; color: var(--ink-3); }
+  .tier .verdict {
+    position: absolute; top: 14px; right: 14px;
+    font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 10px;
+  }
+  .v-easy { background: var(--accent-soft); color: var(--accent); }
+  .v-ok { background: var(--amber-soft); color: var(--amber); }
+  .v-hard { background: var(--red-soft); color: var(--red); }
+  .tier dl { margin-top: 10px; display: grid; gap: 4px; }
+  .tier dl div { display: flex; justify-content: space-between; font-size: 13.5px; }
+  .tier dt { color: var(--ink-2); }
+  .tier dd { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .plat-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .plat-bar button {
+    border: 1px solid var(--line); background: #fff; color: var(--ink-2);
+    border-radius: 999px; padding: 6px 16px; font-size: 13.5px; cursor: pointer;
+  }
+  .plat-bar button.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .table-scroll { overflow-x: auto; }
+  table.compare { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.compare th, table.compare td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+  table.compare th { color: var(--ink-2); font-weight: 600; font-size: 12.5px; }
+  table.compare td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.compare tr:last-child td { border-bottom: none; }
+  .fine { font-size: 12px; color: var(--ink-3); margin-top: 8px; }
+  .proj { display: grid; grid-template-columns: 300px 1fr; gap: 18px; align-items: start; }
+  .sliders { display: grid; gap: 14px; }
+  .sl { display: block; }
+  .sl .row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .sl label { font-size: 13.5px; color: var(--ink-2); }
+  .sl output { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .sl input[type="range"] { width: 100%; accent-color: var(--accent); }
+  .callout {
+    margin-top: 12px; border-radius: var(--radius); padding: 12px 14px;
+    font-size: 14px; background: var(--accent-soft); color: var(--accent); font-weight: 600;
+  }
+  .callout.warn { background: var(--amber-soft); color: var(--amber); }
+  .chart-wrap { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+  .chart-wrap svg { width: 100%; height: auto; display: block; }
+  .refs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .ref h3 { font-size: 14.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .ref h3 svg { width: 16px; height: 16px; color: var(--accent); }
+  .ref ul { list-style: none; display: grid; gap: 8px; }
+  .ref li { font-size: 13.5px; color: var(--ink-2); padding-left: 18px; position: relative; }
+  .ref li::before { content: ""; position: absolute; left: 2px; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .ref li b { color: var(--ink); }
+  footer {
+    border-top: 1px solid var(--line); margin-top: 40px;
+    padding: 22px 20px 34px; text-align: center;
+    font-size: 12.5px; color: var(--ink-3);
+  }
+  @media (max-width: 860px) {
+    .inputs, .tiers { grid-template-columns: repeat(2, 1fr); }
+    .proj { grid-template-columns: 1fr; }
+    .refs { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 22px; }
+  }
+  @media (max-width: 480px) {
+    .inputs, .tiers { grid-template-columns: 1fr; }
+    main { padding: 0 14px 40px; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+      定价罗盘 <span class="en">PriceCompass</span>
+    </div>
+    <div class="rate-pill">1 USD =
+      <input id="rate" type="number" step="0.01" min="0.1" value="6.72"> CNY
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>你的订阅定价，能撑起目标收入吗？</h1>
+    <p>输入目标月收入和汇率，立刻看到各价位需要多少付费用户、多少访问量，以及 12 个月后你能走到哪。</p>
+  </div>
+
+  <div class="band-label"><span class="no">1</span> 目标与成本</div>
+  <div class="card inputs">
+    <div class="field">
+      <label for="goal">目标月净收入（人民币）</label>
+      <input id="goal" type="number" min="0" step="1000" value="20000">
+      <div class="hint">扣除成本后想赚到的钱</div>
+    </div>
+    <div class="field">
+      <label for="costs">月固定成本（美元）</label>
+      <input id="costs" type="number" min="0" step="1" value="20">
+      <div class="hint">服务器、域名、工具订阅</div>
+    </div>
+    <div class="field">
+      <label for="conv">访问转付费率</label>
+      <input id="conv" type="number" min="0.1" max="20" step="0.1" value="2.5">
+      <div class="hint">独立工具常见 1%–5%</div>
+    </div>
+    <div class="field">
+      <label for="platform">收款平台</label>
+      <select id="platform" class="field-input" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);font-size:15px;">
+        <option value="stripe">Stripe</option>
+        <option value="paddle">Paddle</option>
+        <option value="lemon">Lemon Squeezy</option>
+      </select>
+      <div class="hint">费率可在下方对比表修改预期</div>
+    </div>
+  </div>
+
+  <div class="band-label"><span class="no">2</span> 四个价位，需要多少人买单</div>
+  <div class="tiers" id="tiers"></div>
+
+  <div class="band-label"><span class="no">3</span> 收款平台费用对比</div>
+  <div class="card">
+    <div class="table-scroll">
+    <table class="compare">
+      <thead>
+        <tr><th>平台</th><th>费率</th><th class="num">$9/单 净收入</th><th class="num">$29/单 净收入</th><th class="num">$49/单 净收入</th><th>特点</th></tr>
+      </thead>
+      <tbody id="compareBody"></tbody>
+    </table>
+    </div>
+    <div class="fine">费率为公开标准价，实际以各平台官网为准；Paddle 与 Lemon Squeezy 为 MoR 模式，代缴海外销售税。</div>
+  </div>
+
+  <div class="band-label"><span class="no">4</span> 12 个月增长测算</div>
+  <div class="card proj">
+    <div class="sliders">
+      <div class="sl">
+        <div class="row"><label for="initial">当前付费用户</label><output id="initialOut"></output></div>
+        <input id="initial" type="range" min="0" max="500" step="5" value="10">
+      </div>
+      <div class="sl">
+        <div class="row"><label for="newUsers">每月新增付费用户</label><output id="newUsersOut"></output></div>
+        <input id="newUsers" type="range" min="0" max="300" step="5" value="30">
+      </div>
+      <div class="sl">
+        <div class="row"><label for="churn">月流失率</label><output id="churnOut"></output></div>
+        <input id="churn" type="range" min="0" max="20" step="0.5" value="5">
+      </div>
+      <div class="sl">
+        <div class="row"><label for="pricePick">按哪个价位测算</label><output id="pricePickOut"></output></div>
+        <input id="pricePick" type="range" min="0" max="3" step="1" value="2">
+      </div>
+      <div class="callout" id="projCallout"></div>
+    </div>
+    <div class="chart-wrap">
+      <svg id="chart" viewBox="0 0 760 300" role="img" aria-label="12个月月收入预测折线图"></svg>
+    </div>
+  </div>
+
+  <div class="band-label"><span class="no">5</span> 定价参考</div>
+  <div class="refs">
+    <div class="card ref">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        常见价位档传递的信号
+      </h3>
+      <ul>
+        <li><b>$5–9</b>：工具型产品，冲动消费区间，决策快、门槛低</li>
+        <li><b>$19–29</b>：专业个人版主流价位，独立开发者最常落点</li>
+        <li><b>$49–99</b>：面向团队与商业用途，卖的是省时间与确定性</li>
+        <li><b>免费</b>：只是获客手段，不是商业模式</li>
+      </ul>
+    </div>
+    <div class="card ref">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        定价前检查清单
+      </h3>
+      <ul>
+        <li>找 3 个同类产品，看它们<b>敢收多少钱</b></li>
+        <li>第一版就收费，免费验证的是喜欢，付费验证的才是需求</li>
+        <li>定价页放年付（约 8 折），提高客单与留存</li>
+        <li>把汇率波动与平台手续费<b>写进成本模型</b>，别事后惊讶</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<footer>定价罗盘 · 一个用 AI 做出来的出海小工具 · 数据仅用于测算，不构成财务建议</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var PLATFORMS = {
+    stripe: { name: "Stripe", pct: 0.029, fixed: 0.30, note: "需自行处理海外税务" },
+    paddle: { name: "Paddle", pct: 0.05, fixed: 0.50, note: "MoR，代缴销售税" },
+    lemon: { name: "Lemon Squeezy", pct: 0.05, fixed: 0.50, note: "MoR，代缴销售税" }
+  };
+  var TIERS = [5, 9, 29, 49];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = {};
+
+  function readInputs() {
+    state.rate = Math.max(parseFloat($("rate").value) || 6.72, 0.1);
+    state.goalCNY = Math.max(parseFloat($("goal").value) || 0, 0);
+    state.costsUSD = Math.max(parseFloat($("costs").value) || 0, 0);
+    state.conv = Math.min(Math.max(parseFloat($("conv").value) || 2.5, 0.1), 20) / 100;
+    state.platform = $("platform").value;
+    state.initial = parseInt($("initial").value, 10);
+    state.newUsers = parseInt($("newUsers").value, 10);
+    state.churn = parseFloat($("churn").value) / 100;
+    state.priceIdx = parseInt($("pricePick").value, 10);
+  }
+
+  function save() {
+    var data = {};
+    ["rate", "goal", "costs", "conv", "platform", "initial", "newUsers", "churn", "pricePick"].forEach(function (k) {
+      data[k] = $(k).value;
+    });
+    try { localStorage.setItem("priceCompass", JSON.stringify(data)); } catch (e) {}
+  }
+
+  function load() {
+    try {
+      var data = JSON.parse(localStorage.getItem("priceCompass"));
+      if (data) {
+        Object.keys(data).forEach(function (k) {
+          if ($(k)) $(k).value = data[k];
+        });
+      }
+    } catch (e) {}
+  }
+
+  function fmt(n) { return Math.round(n).toLocaleString("zh-CN"); }
+
+  function netOf(price, platKey) {
+    var p = PLATFORMS[platKey];
+    return Math.max(price - price * p.pct - p.fixed, 0);
+  }
+
+  function verdict(users) {
+    if (users <= 50) return { text: "容易", cls: "v-easy" };
+    if (users <= 300) return { text: "可行", cls: "v-ok" };
+    return { text: "有挑战", cls: "v-hard" };
+  }
+
+  function renderTiers() {
+    var targetUSD = state.goalCNY / state.rate + state.costsUSD;
+    var html = "";
+    TIERS.forEach(function (price) {
+      var net = netOf(price, state.platform);
+      var users = Math.ceil(targetUSD / net);
+      var visitors = Math.ceil(users / state.conv);
+      var v = verdict(users);
+      html += '<div class="tier">' +
+        '<span class="verdict ' + v.cls + '">' + v.text + "</span>" +
+        '<div class="price">$' + price + ' <small>/ 月</small></div>' +
+        "<dl>" +
+        '<div><dt>单用户净收入</dt><dd>$' + net.toFixed(2) + "</dd></div>" +
+        '<div><dt>需要付费用户</dt><dd>' + fmt(users) + " 人</dd></div>" +
+        '<div><dt>需要月访问量</dt><dd>约 ' + fmt(visitors) + "</dd></div>" +
+        "</dl></div>";
+    });
+    $("tiers").innerHTML = html;
+  }
+
+  function renderCompare() {
+    var html = "";
+    Object.keys(PLATFORMS).forEach(function (key) {
+      var p = PLATFORMS[key];
+      html += "<tr><td><b>" + p.name + "</b></td>" +
+        "<td>" + (p.pct * 100).toFixed(1) + "% + $" + p.fixed.toFixed(2) + "</td>" +
+        "<td class=\"num\">$" + netOf(9, key).toFixed(2) + "</td>" +
+        "<td class=\"num\">$" + netOf(29, key).toFixed(2) + "</td>" +
+        "<td class=\"num\">$" + netOf(49, key).toFixed(2) + "</td>" +
+        "<td>" + p.note + "</td></tr>";
+    });
+    $("compareBody").innerHTML = html;
+  }
+
+  function project(price) {
+    var net = netOf(price, state.platform);
+    var series = [];
+    var mrr = state.initial * net;
+    for (var m = 0; m <= 12; m++) {
+      if (m > 0) mrr = mrr * (1 - state.churn) + state.newUsers * net;
+      series.push(mrr);
+    }
+    return series;
+  }
+
+  function monthsToGoal(price) {
+    var net = netOf(price, state.platform);
+    var goalMRR = state.goalCNY / state.rate + state.costsUSD;
+    var mrr = state.initial * net;
+    for (var m = 1; m <= 120; m++) {
+      mrr = mrr * (1 - state.churn) + state.newUsers * net;
+      if (mrr >= goalMRR) return m;
+    }
+    return -1;
+  }
+
+  function renderChart(series, goalMRR) {
+    var svg = $("chart");
+    var W = 760, H = 300, L = 52, R = 16, T = 18, B = 30;
+    var iw = W - L - R, ih = H - T - B;
+    var maxY = Math.max(goalMRR, series[series.length - 1]) * 1.15 + 1;
+    var x = function (m) { return L + (m / 12) * iw; };
+    var y = function (v) { return T + ih - (v / maxY) * ih; };
+    var parts = [];
+
+    for (var g = 0; g <= 3; g++) {
+      var gy = T + (ih * g) / 3;
+      var val = maxY * (1 - g / 3);
+      parts.push('<line x1="' + L + '" y1="' + gy + '" x2="' + (W - R) + '" y2="' + gy + '" stroke="#e4e8ee" stroke-width="1"/>');
+      parts.push('<text x="' + (L - 8) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="13" fill="#8a93a0">' + fmt(val / 1000) + "k</text>");
+    }
+    for (var m = 0; m <= 12; m += 3) {
+      parts.push('<text x="' + x(m) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="13" fill="#8a93a0">' + m + "月</text>");
+    }
+    var goalY = y(goalMRR);
+    parts.push('<line x1="' + L + '" y1="' + goalY + '" x2="' + (W - R) + '" y2="' + goalY + '" stroke="#b45309" stroke-width="1.5" stroke-dasharray="6 5"/>');
+    parts.push('<text x="' + (W - R - 4) + '" y="' + (goalY - 6) + '" text-anchor="end" font-size="13" font-weight="600" fill="#b45309">目标 ¥' + fmt(goalMRR * state.rate) + "/月</text>");
+
+    var pts = series.map(function (v, i) { return x(i) + "," + y(v); }).join(" ");
+    var area = "M" + x(0) + "," + (T + ih) + " L" + pts.replace(/ /g, " L") + " L" + x(12) + "," + (T + ih) + " Z";
+    parts.push('<path d="' + area + '" fill="rgba(15,118,110,0.10)"/>');
+    parts.push('<polyline points="' + pts + '" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>');
+    var lastX = x(12), lastY = y(series[12]);
+    parts.push('<circle cx="' + lastX + '" cy="' + lastY + '" r="4" fill="#0f766e"/>');
+    parts.push('<text x="' + (lastX - 6) + '" y="' + (lastY - 10) + '" text-anchor="end" font-size="13" font-weight="700" fill="#1b1f24">¥' + fmt(series[12] * state.rate) + "/月</text>");
+    svg.innerHTML = parts.join("");
+  }
+
+  function renderProjection() {
+    var price = TIERS[state.priceIdx];
+    $("pricePickOut").textContent = "$" + price + "/月";
+    $("initialOut").textContent = state.initial + " 人";
+    $("newUsersOut").textContent = state.newUsers + " 人/月";
+    $("churnOut").textContent = (state.churn * 100).toFixed(1) + "%";
+
+    var series = project(price);
+    var goalMRR = state.goalCNY / state.rate + state.costsUSD;
+    renderChart(series, goalMRR);
+
+    var callout = $("projCallout");
+    var months = monthsToGoal(price);
+    if (months > 0 && months <= 12) {
+      callout.className = "callout";
+      callout.textContent = "按当前速度，预计第 " + months + " 个月达到目标净收入。";
+    } else if (months > 0) {
+      callout.className = "callout warn";
+      callout.textContent = "第 " + months + " 个月才能达标——考虑提高价位或加大获客。";
+    } else {
+      callout.className = "callout warn";
+      callout.textContent = "照这个速度 10 年都到不了目标，定价或获客必须调整。";
+    }
+  }
+
+  function renderAll() {
+    readInputs();
+    renderTiers();
+    renderCompare();
+    renderProjection();
+    save();
+  }
+
+  ["rate", "goal", "costs", "conv", "platform", "initial", "newUsers", "churn", "pricePick"].forEach(function (id) {
+    $(id).addEventListener("input", renderAll);
+  });
+
+  load();
+  renderAll();
+})();
+</script>
+</body>
+</html>
