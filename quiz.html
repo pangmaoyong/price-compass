@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>测测你适合哪种副业 · 5道题出结果</title>
+<meta name="description" content="免费副业类型测试：5 道题、60 秒，测出你适合接单变现、产品变现还是流量变现，并给出可执行的搞钱第一步。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 11l3 3 8-8'/%3E%3Cpath d='M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --ink: #1b1f24;
+    --ink-2: #5b6470;
+    --ink-3: #8a93a0;
+    --line: #e4e8ee;
+    --accent: #0f766e;
+    --accent-soft: #e6f4f2;
+    --amber: #b45309;
+    --amber-soft: #fef3e2;
+    --red: #b91c1c;
+    --red-soft: #fdeaea;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  header.top {
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+  }
+  .top-inner {
+    max-width: 720px; margin: 0 auto; padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; }
+  .brand svg { width: 22px; height: 22px; color: var(--accent); }
+  .pill { font-size: 12.5px; color: var(--ink-3); }
+  main { max-width: 720px; margin: 0 auto; padding: 0 20px 60px; }
+  .hero { padding: 36px 0 10px; text-align: center; }
+  .hero h1 { font-size: 26px; line-height: 1.3; }
+  .hero p { color: var(--ink-2); margin-top: 8px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 22px 24px;
+  }
+  .cta {
+    display: block; width: 100%;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: var(--radius);
+    padding: 13px; font-size: 16px; font-weight: 700; cursor: pointer;
+  }
+  .cta:hover { filter: brightness(1.08); }
+  .meta-row { display: flex; justify-content: center; gap: 18px; margin: 14px 0 20px; }
+  .meta-row span { font-size: 13px; color: var(--ink-2); }
+  .gets { list-style: none; display: grid; gap: 8px; margin: 18px 0 22px; }
+  .gets li { font-size: 14px; color: var(--ink-2); padding-left: 24px; position: relative; }
+  .gets li::before {
+    content: ""; position: absolute; left: 2px; top: 5px; width: 14px; height: 14px;
+    background: var(--accent-soft); border-radius: 50%;
+  }
+  .gets li::after {
+    content: ""; position: absolute; left: 6px; top: 9px; width: 6px; height: 3px;
+    border-left: 2px solid var(--accent); border-bottom: 2px solid var(--accent);
+    transform: rotate(-45deg);
+  }
+  .progress-wrap { height: 6px; background: var(--line); border-radius: 999px; margin-bottom: 20px; overflow: hidden; }
+  .progress-bar { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width .25s; }
+  .qnum { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+  .qtext { font-size: 19px; font-weight: 700; margin-bottom: 18px; }
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    text-align: left; width: 100%;
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px 16px; font-size: 15px; cursor: pointer; color: var(--ink);
+  }
+  .opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .hidden { display: none; }
+  .type-badge {
+    display: inline-block; background: var(--accent); color: #fff;
+    border-radius: 999px; padding: 4px 16px; font-size: 13px; font-weight: 700; margin-bottom: 10px;
+  }
+  .type-name { font-size: 24px; font-weight: 800; }
+  .type-line { font-size: 14px; color: var(--ink-3); margin: 2px 0 14px; }
+  .type-text { font-size: 14.5px; color: var(--ink-2); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 18px 0; }
+  .stat { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+  .stat .k { font-size: 12px; color: var(--ink-2); }
+  .stat .v { font-size: 16px; font-weight: 800; margin-top: 2px; }
+  .next-step {
+    background: var(--accent-soft); border-radius: var(--radius);
+    padding: 13px 16px; font-size: 14px; color: var(--accent); font-weight: 600;
+  }
+  .next-step small { display: block; font-weight: 500; color: var(--accent); opacity: .8; margin-top: 2px; font-size: 12.5px; }
+  .again {
+    margin-top: 16px; width: 100%;
+    background: #fff; color: var(--ink-2); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 11px; font-size: 14px; cursor: pointer;
+  }
+  .comment-tip { text-align: center; font-size: 13px; color: var(--ink-3); margin-top: 18px; }
+  footer {
+    border-top: 1px solid var(--line); margin-top: 40px;
+    padding: 22px 20px 34px; text-align: center;
+    font-size: 12.5px; color: var(--ink-3);
+  }
+  @media (max-width: 480px) {
+    main { padding: 0 14px 40px; }
+    .hero h1 { font-size: 22px; }
+    .stats { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>
+      副业类型测试
+    </div>
+    <div class="pill">5 题 · 60 秒</div>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>测测你适合哪种副业</h1>
+    <p>不是所有副业都适合所有人。答 5 道题，找到你的那条路。</p>
+  </div>
+
+  <div id="startCard" class="card">
+    <ul class="gets">
+      <li>测出你是接单型、产品型还是流量型</li>
+      <li>每种类型都对应能直接执行的搞钱第一步</li>
+      <li>附赠同款收入测算工具，把目标拆成具体数字</li>
+    </ul>
+    <button class="cta" onclick="startQuiz()">开始测试</button>
+  </div>
+
+  <div id="quizCard" class="card hidden">
+    <div class="progress-wrap"><div class="progress-bar" id="bar"></div></div>
+    <div class="qnum" id="qnum"></div>
+    <div class="qtext" id="qtext"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+
+  <div id="resultCard" class="card hidden">
+    <div class="type-badge" id="rBadge"></div>
+    <div class="type-name" id="rName"></div>
+    <div class="type-line" id="rLine"></div>
+    <div class="type-text" id="rText"></div>
+    <div class="stats" id="rStats"></div>
+    <div class="next-step" id="rNext"></div>
+    <button class="again" onclick="restart()">再测一次</button>
+    <div class="comment-tip">测完记得回评论区扣出你的类型 👀</div>
+  </div>
+</main>
+
+<footer>副业类型测试 · 一个用 AI 做出来的小工具 · 结果仅供参考，行动才是正解</footer>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+
+  var QUESTIONS = [
+    {
+      q: "每周能稳定投入多少时间？",
+      opts: [
+        { t: "5 小时以内，得挤一挤", s: { F: 1, P: 1 } },
+        { t: "5–10 小时，下班后加周末", s: { J: 1, P: 1 } },
+        { t: "10 小时以上，时间管够", s: { J: 2, F: 1 } }
+      ]
+    },
+    {
+      q: "别人最常找你帮什么忙？",
+      opts: [
+        { t: "做表格、剪视频、写点小代码", s: { J: 2 } },
+        { t: "出主意、讲东西、写文案", s: { P: 2 } },
+        { t: "帮忙拍照、发布、张罗活动", s: { F: 2 } }
+      ]
+    },
+    {
+      q: "多久没见到钱，你会开始焦虑？",
+      opts: [
+        { t: "一周内就得见钱", s: { J: 2 } },
+        { t: "一两个月可以等", s: { P: 1, F: 1 } },
+        { t: "半年也熬得住", s: { P: 2 } }
+      ]
+    },
+    {
+      q: "你手里最足的是哪一样？",
+      opts: [
+        { t: "一门拿得出手的技能", s: { J: 2 } },
+        { t: "一些想法和审美", s: { P: 2 } },
+        { t: "大把的时间和执行力", s: { F: 2 } }
+      ]
+    },
+    {
+      q: "你更像哪种人？",
+      opts: [
+        { t: "交活拿钱，落袋为安", s: { J: 2 } },
+        { t: "打磨作品，慢慢养", s: { P: 2 } },
+        { t: "研究玩法，追热点", s: { F: 2 } }
+      ]
+    }
+  ];
+
+  var RESULTS = {
+    J: {
+      badge: "类型 J",
+      name: "接单变现型",
+      line: "现金流最快的一条路",
+      text: "你的优势是马上能干活换钱，别想太远。本周就把第一项服务挂到闲鱼，先跑通“有人付钱”这个动作。记住底线：用时薪思维筛单，折算下来低于 ¥30/小时的单不接。",
+      stats: [
+        { k: "单价 ¥200 / 4h", v: "时薪 ¥50" },
+        { k: "月入 3000 需要", v: "15 单" },
+        { k: "每周需要投入", v: "约 14 小时" }
+      ],
+      next: "第一步：打开副业收入测算器的「接单」模式",
+      nextSub: "填上你的单价和耗时，算出你的时薪底线"
+    },
+    P: {
+      badge: "类型 P",
+      name: "产品变现型",
+      line: "做一次，卖无数次",
+      text: "你适合把技能做成“睡后收入”：模板、教程、素材包、付费社群都算。¥29.9 的东西每月卖出 101 份就是月入 3000，前期慢，但每份都是积累。",
+      stats: [
+        { k: "定价 ¥29.9", v: "月卖 101 份" },
+        { k: "定价 ¥99", v: "月卖 31 份" },
+        { k: "对应月收入", v: "约 ¥3000" }
+      ],
+      next: "第一步：打开副业收入测算器的「卖产品」模式",
+      nextSub: "定下你的价格，然后先做出能卖的最小版本"
+    },
+    F: {
+      badge: "类型 F",
+      name: "流量变现型",
+      line: "先把人攒起来，再谈钱",
+      text: "你能攒流量，这是最稀缺的能力。但广告变现吃日活：月入 3000 需要约 1667 日活、5557 注册用户。先从每周 3 条内容开始，攒够人再谈变现。",
+      stats: [
+        { k: "月入 3000 需要", v: "1667 日活" },
+        { k: "倒推注册用户", v: "约 5557" },
+        { k: "启动动作", v: "每周 3 条内容" }
+      ],
+      next: "第一步：打开副业收入测算器的「流量广告」模式",
+      nextSub: "看清日活目标的量级，然后开始稳定输出"
+    }
+  };
+
+  var idx = 0;
+  var score = { J: 0, P: 0, F: 0 };
+
+  window.startQuiz = function () {
+    idx = 0;
+    score = { J: 0, P: 0, F: 0 };
+    $("startCard").classList.add("hidden");
+    $("resultCard").classList.add("hidden");
+    $("quizCard").classList.remove("hidden");
+    renderQ();
+  };
+
+  window.restart = function () {
+    $("resultCard").classList.add("hidden");
+    $("startCard").classList.remove("hidden");
+  };
+
+  function renderQ() {
+    var q = QUESTIONS[idx];
+    $("qnum").textContent = "第 " + (idx + 1) + " 题 / 共 " + QUESTIONS.length + " 题";
+    $("qtext").textContent = q.q;
+    $("bar").style.width = (idx / QUESTIONS.length * 100) + "%";
+    var html = "";
+    q.opts.forEach(function (o, i) {
+      html += '<button class="opt" onclick="choose(' + i + ')">' + o.t + "</button>";
+    });
+    $("opts").innerHTML = html;
+  }
+
+  window.choose = function (i) {
+    var s = QUESTIONS[idx].opts[i].s;
+    Object.keys(s).forEach(function (k) { score[k] += s[k]; });
+    idx++;
+    if (idx >= QUESTIONS.length) {
+      showResult();
+    } else {
+      renderQ();
+    }
+  };
+
+  function showResult() {
+    $("quizCard").classList.add("hidden");
+    $("bar").style.width = "100%";
+    var type = score.J >= score.P && score.J >= score.F ? "J" : (score.P >= score.F ? "P" : "F");
+    var r = RESULTS[type];
+    $("rBadge").textContent = r.badge;
+    $("rName").textContent = r.name;
+    $("rLine").textContent = r.line;
+    $("rText").textContent = r.text;
+    $("rStats").innerHTML = r.stats.map(function (s) {
+      return '<div class="stat"><div class="k">' + s.k + '</div><div class="v">' + s.v + "</div></div>";
+    }).join("");
+    $("rNext").innerHTML = r.next + "<small>" + r.nextSub + "</small>";
+    $("resultCard").classList.remove("hidden");
+    try { localStorage.setItem("quizType", type); } catch (e) {}
+  }
+
+  window._forceResult = function (type) {
+    score = type === "J" ? { J: 9, P: 0, F: 0 } : type === "P" ? { J: 0, P: 9, F: 0 } : { J: 0, P: 0, F: 9 };
+    $("startCard").classList.add("hidden");
+    $("quizCard").classList.add("hidden");
+    showResult();
+  };
+})();
+</script>
+</body>
+</html>
